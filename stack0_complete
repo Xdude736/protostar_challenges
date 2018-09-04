@@ -1,0 +1,38 @@
+#include <stdlib.h>
+#include <unistd.h>
+#include <stdio.h>
+
+int main(int argc, char **argv)
+{
+  volatile int modified;
+  char buffer[64];
+
+  modified = 0;
+  gets(buffer);
+
+  if(modified != 0) {
+      printf("you have changed the 'modified' variable\n");
+  } else {
+      printf("Try again?\n");
+  }
+}
+
+/*
+ * This one was pretty straight-forward: enter more than 64 characters to overflow out of the character array(which is size 64) into
+ * the variable 'modified' which changes the value of 'modified.
+ * 
+ * Run this command in the root folder where stack0 is located: 
+ *
+ *         python -c 'print("A"*65)' | ./stack0
+ * 
+ * This is how the stack frame is laid out:
+ *
+ *  Lowest Address(bottom)                               Highest Address(top)
+ *        |                      <--STACK FRAME-->              |
+ *        V                                                     V
+ *        |(other program code if necessary)|modified|buffer|ebp|eip|
+ *
+ * NOTE: The stack grows from the highest address towards the lowest address, or from top to bottom as it is often called. Also, eip is 
+ * technically outside of the stack frame shown below, but is used for demonstration purposes to show that it is on the stack while the 
+ * current frame is being used
+ */
