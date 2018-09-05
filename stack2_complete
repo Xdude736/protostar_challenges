@@ -1,0 +1,44 @@
+#include <stdlib.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <string.h>
+
+int main(int argc, char **argv)
+{
+  volatile int modified;
+  char buffer[64];
+  char *variable;
+
+  variable = getenv("GREENIE");
+
+  if(variable == NULL) {
+      errx(1, "please set the GREENIE environment variable\n");
+  }
+
+  modified = 0;
+
+  strcpy(buffer, variable);
+
+  if(modified == 0x0d0a0d0a) {
+      printf("you have correctly modified the variable\n");
+  } else {
+      printf("Try again, you got 0x%08x\n", modified);
+  }
+
+}
+
+/*
+ * This one was a little bit tricky because we weren't passing in any input, instead we were setting an environment variable that would
+ * be retrieved. This meant that we had to set the environment variable longer than 64 characters in order to overflow the buffer.
+ *
+ * The value we want 'modified' at is 0x0d0a0d0a which looks like some normal ol hex. After running 'man ascii' in the linux terminal we
+ * can determine that what we want is carriage return - new line- carriage return - newline...how in the *%^& are we supposed to get that
+ * into an enviroment variable? After trying \n \r and '\n' '\r' to no avail, I finally sutmbled upon $'\n' and $'\r'. Where the first 
+ * two sets read in as 6E 5C and 72 5C (remember, this is little endian) the use of $ has them read in as the exact ascii values 0a and 
+ * 0d. After getting past that hurdle, this challenge was a cake walk.
+ *
+ * Set the env: export GREENIE=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA$'\n'$'\r'$'\n'$'\r'
+ * (each set of $' ' is read in as one hex value, making that a total of 4 values at the end. We end up with 68 'characters' total)
+ * 
+ * That's all she wrote. Once the value is set you just run ./stack2 and bask in the glory of that victory message.
+ */
