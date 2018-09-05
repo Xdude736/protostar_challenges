@@ -1,0 +1,52 @@
+#include <stdlib.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <string.h>
+
+int main(int argc, char **argv)
+{
+  volatile int modified;
+  char buffer[64];
+
+  if(argc == 1) {
+      errx(1, "please specify an argument\n");
+  }
+
+  modified = 0;
+  strcpy(buffer, argv[1]);
+
+  if(modified == 0x61626364) {
+      printf("you have correctly got the variable to the right value\n");
+  } else {
+      printf("Try again, you got 0x%08x\n", modified);
+  }
+}
+
+/*
+ * This one is also pretty straight forward. Much like stack0 we need to input a string of characters longer than 64 but this time
+ * there is a twist: we have to set 'modified' to a specific value, in this case 'abcd'. An important piece of the puzzle to keep in 
+ * mind is that our protostars processor is little endian which means that we have to enter our input like this 'dcba' in order to get 
+ * it modified correctly. This is due to the fact that little endian stores data in "reverse", meaning that, while reading the data from
+ * left to right, it stores the data from highest address to the lowest address.
+ *
+ * How Little Endian works:
+ *
+ *  If we process 0123 using little endian we end up with the following as it's layout in memory
+ *
+ *    Lowest Address                     Highest Address
+ *          |                                   |
+ *          |_____________         _____________|
+ *                        |       |
+ *                        V       V
+ *                        |3|2|1|0|
+ *
+ * The first byte read is the first going from the highest address to the lowest address
+ *
+ * Command: I had a bit of a time getting this one to pipe correctly so first I did a python print into the console
+ *
+ *        python -c 'print("A" * 64 + "dcba")'
+ *
+ * This provided me with the ouptut 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAdcba' which I then copy/pasted 
+ * in as the argument for ./stack1 like so:
+ *        ./stack1 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAdcba
+ */
