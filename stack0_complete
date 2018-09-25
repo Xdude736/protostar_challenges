@@ -30,7 +30,7 @@ int main(int argc, char **argv)
  *  Lowest Address(bottom)                               Highest Address(top)
  *        |                      <--STACK FRAME-->              |
  *        V                                                     V
- *        |(other program code if necessary)|modified|buffer|ebp|eip|
+ *        |(other program code if necessary)|buffer|modified|ebp|eip|
  *
  * NOTE: The stack grows from the highest address towards the lowest address, or from top to bottom as it is often called. Also, eip is 
  * technically outside of the stack frame shown above, but is used for demonstration purposes to show that it is on the stack while the 
