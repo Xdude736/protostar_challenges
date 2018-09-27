@@ -45,8 +45,10 @@ int main(int argc, char **argv)
  *        V                                                     V
  *        |(other program code if necessary)|buffer|modified|ebp|eip|
  *
- * This diagram was good for stack0, but there is actually a bit more to it. Modern stacks use padding as a form of overflow protection.
- * What this means for us is that there are some extra bytes thrown into the stack. Here's how it goes:
+ * This diagram was good for stack0, but there is actually a bit more to it. There is some padding between where buffer starts and where
+ * ebp and eip are on the stack because our processor operates on a 16 byte boundary. If ebp and eip take a combined 8 bytes, we have to
+ * have an extra 8 to round it out to 16 bytes. We don't notice this with buffer since 64 is divisble by 16. What this means for us is 
+ * that there are some extra bytes we have to account for. Here's how it goes:
  *
  *  Lowest Address(bottom)              Highest Address(top)
  *        |           <--STACK FRAME-->        |
