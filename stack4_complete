@@ -37,27 +37,27 @@ int main(int argc, char **argv)
  *           804841e:       c3                      ret    
  *           804841f:       90                      nop
  *           
- * This reveals some vital information: The stack is of size 0x50 (look at 804840e), or 80 bytes, and the address of <win> is 080483f4. 
- * Rememeber that stack layout from the writeup of stack0? If not, here it is again:
+ * This reveals some vital information: The stack is of size 0x50 (look at 804840e), or 80 bytes, and the address of <win> is 
+ * 080483f4. Rememeber that stack layout from the writeup of stack0? If not, here it is again:
  *
  *  Lowest Address(bottom)                               Highest Address(top)
  *        |                      <--STACK FRAME-->              |
  *        V                                                     V
  *        |(other program code if necessary)|buffer|modified|ebp|eip|
  *
- * This diagram was good for stack0, but there is actually a bit more to it. There is some padding between where buffer starts and where
- * ebp and eip are on the stack because our processor operates on a 16 byte boundary. If ebp and eip take a combined 8 bytes, we have to
- * have an extra 8 to round it out to 16 bytes. We don't notice this with buffer since 64 is divisble by 16. What this means for us is 
- * that there are some extra bytes we have to account for. Here's how it goes:
+ * This diagram was good for stack0, but there is actually a bit more to it. There is some padding between where buffer starts 
+ * and where ebp and eip are on the stack because our processor operates on a 16 byte boundary. If ebp and eip take a combined 
+ * 8 bytes, we have to have an extra 8 to round it out to 16 bytes. We don't notice this with buffer since 64 is divisble by 16.
+ * What this means for us is that there are some extra bytes we have to account for. Here's how it goes:
  *
  *  Lowest Address(bottom)              Highest Address(top)
  *        |           <--STACK FRAME-->        |
  *        V                                    V
  *        |   buffer   |   *Padding*   |ebp|eip|
  *
- * But how do we calculate how much padding we have? From the source code we know that the buffer is 64 chars, a a char is one byte. A
- * little assembly knowledge determines that ebp and eip are both integers, since registers are integers in 32 systems. In a 32bit system
- * an integer is 4 bytes. Crunching some math we have:
+ * But how do we calculate how much padding we have? From the source code we know that the buffer is 64 chars, a a char is one 
+ * byte. A little assembly knowledge determines that ebp and eip are both integers, since registers are integers in 32 systems. 
+ * In a 32bit system an integer is 4 bytes. Crunching some math we have:
  *
  *    64bytes (buffer) + # bytes (padding) + 4 bytes (ebp) + 4 bytes (eip) = 80 bytes (0x50)
  *                           72 bytes (buffer+ebp+eip) + # bytes (padding) = 80 bytes (0x50)
@@ -70,14 +70,15 @@ int main(int argc, char **argv)
  *        V                                            V
  *        |   64 bytes   |   8 bytes   |4 bytes|4 bytes|
  *
- * To redirect execution of the program to <win> we will need to overflow the value 080483fa, the address of <win>, into eip on the stack
- * To do this, I ran the following command:
+ * To redirect execution of the program to <win> we will need to overflow the value 080483fa, the address of <win>, into eip on 
+ * the stack. To do this, I ran the following command:
  *
  *     python -c "print 'a'*64 + 'p'*8 + 'b'*4 + '\xf4\x83\x04\x08'" | ./stack4
  *
- * What this will do is put 64 'a's into the buffer, 8 'p's into the padding, 4 'b's into ebp, and then place the address of <win> into 
- * eip. Remember that our processor is little endian so we have to place the address hex in reverse order for it to be stored properly.
+ * What this will do is put 64 'a's into the buffer, 8 'p's into the padding, 4 'b's into ebp, and then place the address of 
+ * <win> into eip. Remember that our processor is little endian so we have to place the address hex in reverse order for it to 
+ * be stored properly.
  *
- * NOTE: This will cause a segmentation fault because of the improper value in ebp, but we could avoid the seg fault by giving ebp a
- * valid memory address.
+ * NOTE: This will cause a segmentation fault because of the improper value in ebp, but we could avoid the seg fault by giving 
+ * ebp a valid memory address.
  */
