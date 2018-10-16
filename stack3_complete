@@ -1,3 +1,11 @@
+/*
+ * INFO FROM PAGE:
+ * Stack3 looks at environment variables, and how they can be set, and overwriting function pointers stored on the stack (as a 
+ * prelude to overwriting the saved EIP)
+ *
+ * Hints:
+ * both gdb and objdump is your friend you determining where the win() function lies in memory.
+ */
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
