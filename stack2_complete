@@ -1,3 +1,8 @@
+/*
+ * INFO FROM PAGE:
+ * Stack2 looks at environment variables, and how they can be set.
+ */
+
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
