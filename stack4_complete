@@ -1,3 +1,15 @@
+/*
+ * INFO FROM PAGE:
+ * Stack4 takes a look at overwriting saved EIP and standard buffer overflows.
+ *
+ * This level is at /opt/protostar/bin/stack4
+ *
+ * Hints:
+ * A variety of introductory papers into buffer overflows may help.
+ * gdb lets you do "run < input"
+ * EIP is not directly after the end of buffer, compiler padding can also increase the size.
+ */
+
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -55,8 +67,8 @@ int main(int argc, char **argv)
  *        V                                    V
  *        |   buffer   |   *Padding*   |ebp|eip|
  *
- * But how do we calculate how much padding we have? From the source code we know that the buffer is 64 chars, a a char is one 
- * byte. A little assembly knowledge determines that ebp and eip are both integers, since registers are integers in 32 systems. 
+ * But how do we calculate how much padding we have? From the source code we know that the buffer is 64 chars, and a char is one 
+ * byte. A little assembly knowledge determines that ebp and eip are both integers, since registers are integers in 32bit systems. 
  * In a 32bit system an integer is 4 bytes. Crunching some math we have:
  *
  *    64bytes (buffer) + # bytes (padding) + 4 bytes (ebp) + 4 bytes (eip) = 80 bytes (0x50)
