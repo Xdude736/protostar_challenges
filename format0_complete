@@ -1,0 +1,51 @@
+/*
+ * This level introduces format strings, and how attacker supplied format strings can modify the execution flow of programs.
+ *
+ * Hints:
+ *
+ * This level should be done in less than 10 bytes of input.
+ * "Exploiting format string vulnerabilities"
+ * This level is at /opt/protostar/bin/format0
+ */
+ 
+#include <stdlib.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <string.h>
+
+void vuln(char *string)
+{
+  volatile int target;
+  char buffer[64];
+
+  target = 0;
+
+  sprintf(buffer, string);
+  
+  if(target == 0xdeadbeef) {
+      printf("you have hit the target correctly :)\n");
+  }
+}
+
+int main(int argc, char **argv)
+{
+  vuln(argv[1]);
+}
+
+/*
+ * This one was pretty straight forward. A format string vulnerability is when you use a c functions "%<whatever>" format to manipulate the
+ * stack. This is a common feature of functions such as printf and sprintf, allowing you to manipulate the output i.e printf("%d", decimal)
+ * would print out the value of decimal as a decimal to the console.
+ * 
+ * For this challenge We know that the buffer is size 64 so we acn do something like "%64d" to overflow 64 decimals into buffer. Since we
+ * are formatting a string, we can actually do something like "%64dpuppy" which would be 64 decimal values followed by the word puppy. Using
+ * this concept we can actually pass in hex values after the decimal values to create an overflow. If you look at the assembly, we compare
+ * eax to 0xdeadbeef where eax is supposed to be the variable target from the source code. We can put 0xdeadbeef into target by doing an overflow.
+ * The command I used looked like this:
+ *
+ * ./format0 "`echo -en "%64d\xef\xbe\xad\xde"`"
+ *
+ * The ` surrounding the echo command is a way to excute bash commands inside of quotation marks so the output will look like "%64dchar values of 0xdeadbeef..."
+ * and that will get passed in as the argument of format0. I tried putting the output that I wanted inside of a text file and then piping the cat of that file
+ * into format0 as input but that wouldn't work so some internet perusal led me to the "`echo`"
+ */
