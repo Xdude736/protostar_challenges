@@ -23,5 +23,24 @@ int main(int argc, char **argv)
 }
 
 /*
- * 
+ * This challenge can really steps up the game. I got my shellcode from shell-storm.org which is a website that has a long list of shellcode
+ * sorted by platform. I ended up using http://shell-storm.org/shellcode/files/shellcode-811.php now onto the actual challenge. After doing
+ * some book reading in Hacking, the Art of Exploitation 2nd by Jon Erikson, I found out that to solve this challenge I need to do a NOP Slide.
+ * A NOP slide is when you pad your payload with the opcode 0x90, which means No Operation. No Operation moves onto the next instruction on
+ * the stack without executing anything. There are various reasons that stack address may change from execution to execution, but you can
+ * get around this using a NOP slide and an environment variable. 
+ *
+ * It goest like this:
+ * 1.) Create an environment varibale containing your shellcode padded by a couple hundred NOPs in front of it, in this case the 
+ *     shellcode from shell-storm
+ * 2.) Open up gdb and set a breakpoint before the return in main. From there, print out a hundred or two hundred strings from $esp. This
+ *     should hopefully print out the environment variables and their addresses. Envs sit at the bottom of the stack.
+ * 3.) Once you have the address range of your environment variable, pass in a string to stack5 that will overflow a return address that
+ *     is located somewhere within your NOP slide. The goal here is to jump to the NOPs within the range and have them execute into your
+ *     shellcode
+ * 4.) Sit back and bask in the glory of your new hacking powers...
+ * 5.) ...then realize that you are still a scrub and get back to gettin gud.
+ *
+ * That right there is the basics of how to execute a NOP slide with an environment variable. You could also do it by passing in the NOP
+ * slide as the argument for stack5, but I thought using an env was far more practical. It allowed for less randomness.
  */
