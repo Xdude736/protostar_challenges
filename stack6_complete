@@ -41,5 +41,42 @@ int main(int argc, char **argv)
 }
 
 /*
+ * I completed this challenge using ret2libc. ret2libc stands for "Return to Library C". One would usually use ret2libc when there
+ * are restrictions on the stack, such as the stack not being executable. By finding the address of a function in the C library,
+ * we can bypass the normal restrictions of a non-executable stack by using code that is already in memory to execute our attack.
  *
+ * One of the most common targets for a ret2libc attack is the system() function. When we call system, we pass in the filepath of 
+ * a program we want executed. In order to pass in the argument, we will have to put the filepath of the string that we want on the
+ * stack...but how would that work? Let's look at a handy stack diagram:
+ *
+ *  ________________________________________________________________________
+ *  | Function Address | Return Address | Arg1 | Arg2 | Arg3 | ... etc ... |
+ *  |______________________________________________________________________|
+ *
+ * Looking at the diagram above, Function Address is where we will place the address of system(). This will create a new stack frame
+ * starting where the function address was and the Return Address that was on the stack before the system call will be the return
+ * address execution goes to after system has completed. Where the Args are on the stack is where system's stack frame will check for
+ * the arguments, since arguments are put onto the stack as setup for the function call. Since we redirected code execution, there
+ * was no setup so we have to overflow the stack to provide that setup. We will place the string "           /bin/hostname" in an
+ * environment variable, so we can point the address to there. The spaces before /bin/hostname will function similarly to a NOP sled
+ * since system() ignores leading spaces.
+ *
+ * While building our payload, we could just put BBBB where the return address is, but that will cause a seg fault. Let's try and be
+ * clever about this. Another commonly used libc function is exit(). It does exactly what one would expect, it closes out the program.
+ * If we find the address of exit, we can call that after we call system and then make it seem like we were never there.
+ *
+ * Here's the break down:
+ * 1.) confirm we can control eip
+ * 2.) have to use 21 words of offset leading to return value (calculated through brute forcing, automated of course)
+ * 3.) System located at  0xf7e57310 (found in gdb using 'print system)
+ * 4.) Exit located at 0xf7e4a260 (found in gdb using 'print exit')
+ * 5.) should be able to ret2libc using system as the push off point
+ * 6.) x/100s $esp+0x290 gets you into env stack space from 1st break (placed at beginning of <getpath>)
+ * 7.) env var HELLO is at 0xffffd6fa with 111 spaces between start and "bin/hostname"
+ *  	 using the address 0xffffd730 should put you in the middle of the " "setting
+ * 8.) Payload should look like this: python -c 'print("\x10\x73\xe5\xf7"*21 + "\x60\xa2\xe4\xf7" + "\x30\xd7\xff\xff")'
+ * 9.) this prints out the hostname without a segfault! Exploit sucessful!!!
+ *
+ * Huge shoutout to Jon Erikson's Hacking, the Art of Exploitation 2nd Ed. and McGraw Hill's Gray Hat Hacking 5th Ed.
+ * Both books have been wonderfully helpful with these challenges.
  */
