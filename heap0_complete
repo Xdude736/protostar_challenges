@@ -1,0 +1,47 @@
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <stdio.h>
+#include <sys/types.h>
+
+struct data {
+  char name[64];
+};
+
+struct fp {
+  int (*fp)();
+};
+
+void winner()
+{
+  printf("level passed\n");
+}
+
+void nowinner()
+{
+  printf("level has not been passed\n");
+}
+
+int main(int argc, char **argv)
+{
+  struct data *d;
+  struct fp *f;
+
+  d = malloc(sizeof(struct data));
+  f = malloc(sizeof(struct fp));
+  f->fp = nowinner;
+
+  printf("data is at %p, fp is at %p\n", d, f);
+
+  strcpy(d->name, argv[1]);
+  
+  f->fp();
+
+}
+
+/*
+ * This was pretty straight forward. We need to overflow a new address for the function pointer to call. To do this we have to calculate
+ * the difference in space between d and f in the heap. It comes out to 72bytes. After that we need to find the address of winner. Once
+ * we have the address we pass in 72 bytes of whatever(the usual string of As) and then the address. This will redirect code flow whenever
+ * the function pointer gets called.
+ */
