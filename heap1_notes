@@ -1,0 +1,88 @@
+HEAP1 NOTES:
+1.) <main> and <winner>:
+
+08048494 <winner>:
+ 8048494:      55                       push   ebp						;prolog
+ 8048495:      89 e5                    mov    ebp,esp					;prolog
+ 8048497:      83 ec 18                 sub    esp,0x18					;create 24byte stack frame
+1.) TIME
+ 804849a:      c7 04 24 00 00 00 00     mov    DWORD PTR [esp],0x0		;move 0 into location of esp (top of stack frame)
+ 80484a1:      e8 06 ff ff ff           call   80483ac <time@plt>		;call time
+2.) PRINTF
+ 80484a6:      ba 30 86 04 08           mov    edx,0x8048630			;move value(most likely an address) into edx
+ 80484ab:      89 44 24 04              mov    DWORD PTR [esp+0x4],eax	;move the value in eax to esp+4
+ 80484af:      89 14 24                 mov    DWORD PTR [esp],edx		;move value of edx to location of esp(top of stack frame)
+ 80484b2:      e8 e5 fe ff ff           call   804839c <printf@plt>		;call printf - looks like we are printing out two values here(?)
+3.) EPILOG
+ 80484b7:      c9                       leave  							;epilog
+ 80484b8:      c3                       ret    							;return
+
+080484b9 <main>:
+ 80484b9:      55                       push   ebp						;prolog
+ 80484ba:      89 e5                    mov    ebp,esp					;prolog
+ 80484bc:      83 e4 f0                 and    esp,0xfffffff0			;clearing last byte of esp
+ 80484bf:      83 ec 20                 sub    esp,0x20					;32 byte stack frame
+ 
+ 80484c2:      c7 04 24 08 00 00 00     mov    DWORD PTR [esp],0x8		;move 8 into location of esp (top of stack frame)
+ 80484c9:      e8 ee fe ff ff           call   80483bc <malloc@plt>		;call malloc
+ 
+ 80484ce:      89 44 24 14              mov    DWORD PTR [esp+0x14],eax	;move value of eax to esp+20
+ 80484d2:      8b 44 24 14              mov    eax,DWORD PTR [esp+0x14]	;move value of esp+20 into eax
+ 80484d6:      c7 00 01 00 00 00        mov    DWORD PTR [eax],0x1		;move 1 into location of eax
+ 
+ 80484dc:      c7 04 24 08 00 00 00     mov    DWORD PTR [esp],0x8		;move 8 into location of esp (top of stack frame)
+ 80484e3:      e8 d4 fe ff ff           call   80483bc <malloc@plt>		;call malloc
+ 
+ 80484e8:      89 c2                    mov    edx,eax					;move eax into edx
+ 80484ea:      8b 44 24 14              mov    eax,DWORD PTR [esp+0x14]	;move value at esp+20 into eax
+ 80484ee:      89 50 04                 mov    DWORD PTR [eax+0x4],edx	;move value in edx to eax+4
+ 
+ 80484f1:      c7 04 24 08 00 00 00     mov    DWORD PTR [esp],0x8		;move 8 into location of esp (top of stack frame)
+ 80484f8:      e8 bf fe ff ff           call   80483bc <malloc@plt>		;call malloc
+ 
+ 80484fd:      89 44 24 18              mov    DWORD PTR [esp+0x18],eax	;move value in eax to esp+24
+ 8048501:      8b 44 24 18              mov    eax,DWORD PTR [esp+0x18]	;move value at esp+24 into eax
+ 8048505:      c7 00 02 00 00 00        mov    DWORD PTR [eax],0x2		;move 2 into location of eax
+ 
+ 804850b:      c7 04 24 08 00 00 00     mov    DWORD PTR [esp],0x8		;move 8 into location of esp (top of stack frame)
+ 8048512:      e8 a5 fe ff ff           call   80483bc <malloc@plt>		;call malloc
+ 
+ 8048517:      89 c2                    mov    edx,eax					;move eax into edx
+ 8048519:      8b 44 24 18              mov    eax,DWORD PTR [esp+0x18]	;move value at esp+24 into eax
+ 804851d:      89 50 04                 mov    DWORD PTR [eax+0x4],edx	;move edx into location of eax+4
+ 
+ 8048520:      8b 45 0c                 mov    eax,DWORD PTR [ebp+0xc]	;move value at ebp+12 into eax (must be address of arg1?)
+ 8048523:      83 c0 04                 add    eax,0x4					;add 4 to eax
+ 8048526:      8b 00                    mov    eax,DWORD PTR [eax]		;move value at location of eax into eax(?)
+ 8048528:      89 c2                    mov    edx,eax					;move eax into edx
+ 
+ 804852a:      8b 44 24 14              mov    eax,DWORD PTR [esp+0x14]	;move value at esp+20 into eax
+ 804852e:      8b 40 04                 mov    eax,DWORD PTR [eax+0x4]	;move vlaue at eax+4 into eax
+ 8048531:      89 54 24 04              mov    DWORD PTR [esp+0x4],edx	;move value in edx into location of esp+4
+ 8048535:      89 04 24                 mov    DWORD PTR [esp],eax		;move eax into location of esp (top of stack frame)
+ 8048538:      e8 4f fe ff ff           call   804838c <strcpy@plt>		;call strcpy
+ 
+ 804853d:      8b 45 0c                 mov    eax,DWORD PTR [ebp+0xc]	;move value at ebp+12 into eax
+ 8048540:      83 c0 08                 add    eax,0x8					;add 8 to address in eax (gets us to arg2?)
+ 8048543:      8b 00                    mov    eax,DWORD PTR [eax]		;move value at eax into eax
+ 8048545:      89 c2                    mov    edx,eax					;move value at eax into edx
+ 
+ 8048547:      8b 44 24 18              mov    eax,DWORD PTR [esp+0x18]
+ 804854b:      8b 40 04                 mov    eax,DWORD PTR [eax+0x4]
+ 804854e:      89 54 24 04              mov    DWORD PTR [esp+0x4],edx
+ 8048552:      89 04 24                 mov    DWORD PTR [esp],eax
+ 8048555:      e8 32 fe ff ff           call   804838c <strcpy@plt>		;call strcpy	<----VULNERABLE!!!
+ 
+ 804855a:      c7 04 24 4b 86 04 08     mov    DWORD PTR [esp],0x804864b;setup for puts
+ 8048561:      e8 66 fe ff ff           call   80483cc <puts@plt>		;call puts
+ 
+ 8048566:      c9                       leave  							;epilog
+ 8048567:      c3                       ret    							;return
+ 8048568:      90                       nop
+ 8048569:      90                       nop
+ 804856a:      90                       nop
+ 804856b:      90                       nop
+ 804856c:      90                       nop
+ 804856d:      90                       nop
+ 804856e:      90                       nop
+ 804856f:      90                       nop
