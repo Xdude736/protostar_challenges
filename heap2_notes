@@ -34,7 +34,7 @@
  8048996:       08 													
  8048997:       8d 44 24 10             lea    eax,[esp+0x10]					;setup for strncmp
  804899b:       89 04 24                mov    DWORD PTR [esp],eax				;setup for strncmp
- 804899e:       e8 a9 fe ff ff          call   804884c <strncmp@plt>			;call strncmp 
+ 804899e:       e8 a9 fe ff ff          call   804884c <strncmp@plt>			;call strncmp
 5.) ANOTHER WEIRD JUMP
  80489a3:       85 c0                   test   eax,eax							;test eax against itself
  80489a5:       75 5a                   jne    8048a01 <main+0xcd>				;jump not equal to 8048a01
@@ -87,7 +87,7 @@
  8048a3e:       8d 44 24 10             lea    eax,[esp+0x10]					;addr of 1st str
  8048a42:       89 04 24                mov    DWORD PTR [esp],eax				;place 1st arg on stack
  8048a45:       e8 02 fe ff ff          call   804884c <strncmp@plt>			;call strncmp
-15.)
+15.)JMPIN AGAIN
  8048a4a:       85 c0                   test   eax,eax
  8048a4c:       75 14                   jne    8048a62 <main+0x12e>
 16.)STRDUP
@@ -95,15 +95,15 @@
  8048a52:       83 c0 07                add    eax,0x7							;add 7 to eax
  8048a55:       89 04 24                mov    DWORD PTR [esp],eax				;place arg on stack (addr of str to dup)
  8048a58:       e8 0f fe ff ff          call   804886c <strdup@plt>				;call strdup
-17.)
- 8048a5d:       a3 f8 b5 04 08          mov    ds:0x804b5f8,eax
- 8048a62:       c7 44 24 08 05 00 00    mov    DWORD PTR [esp+0x8],0x5
+17.)CHECKING THE DUP?
+ 8048a5d:       a3 f8 b5 04 08          mov    ds:0x804b5f8,eax					;take eax(dup addr?) and place it in ds
+ 8048a62:       c7 44 24 08 05 00 00    mov    DWORD PTR [esp+0x8],0x5			;3rd arg on stack, size of 5
  8048a69:       00 
- 8048a6a:       c7 44 24 04 a1 ad 04    mov    DWORD PTR [esp+0x4],0x804ada1
+ 8048a6a:       c7 44 24 04 a1 ad 04    mov    DWORD PTR [esp+0x4],0x804ada1	;place addr as 2nd arg on stack
  8048a71:       08 
- 8048a72:       8d 44 24 10             lea    eax,[esp+0x10]
- 8048a76:       89 04 24                mov    DWORD PTR [esp],eax
- 8048a79:       e8 ce fd ff ff          call   804884c <strncmp@plt>
+ 8048a72:       8d 44 24 10             lea    eax,[esp+0x10]					;load 3rd arg from stack into eax
+ 8048a76:       89 04 24                mov    DWORD PTR [esp],eax				;setup 1st arg on stack
+ 8048a79:       e8 ce fd ff ff          call   804884c <strncmp@plt>			;call strncmp (compare dup string to orginal?)
 18.)
  8048a7e:       85 c0                   test   eax,eax
  8048a80:       0f 85 bc fe ff ff       jne    8048942 <main+0xe>
