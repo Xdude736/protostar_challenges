@@ -1,12 +1,12 @@
 08048934 <main>:
-1.) EPILOG
+1.)PROLOG
  8048934:       55                      push   ebp								;epilog
  8048935:       89 e5                   mov    ebp,esp							;epilog
  8048937:       83 e4 f0                and    esp,0xfffffff0					;clearing the last bit of $esp
  804893a:       81 ec 90 00 00 00       sub    esp,0x90							;setup a 144 byte stack frame
  8048940:       eb 01                   jmp    8048943 <main+0xf>				;jmp to 8048943
  8048942:       90                      nop										;no op, skipped over by above jmp
-2.) PRINTF
+2.)PRINTF
  8048943:       8b 0d f8 b5 04 08       mov    ecx,DWORD PTR ds:0x804b5f8		;hard coded string addr
  8048949:       8b 15 f4 b5 04 08       mov    edx,DWORD PTR ds:0x804b5f4		;hard coded string addr
  804894f:       b8 70 ad 04 08          mov    eax,0x804ad70					;some sort of address?
@@ -22,12 +22,12 @@
  8048975:       8d 44 24 10             lea    eax,[esp+0x10]					;setup for fgets
  8048979:       89 04 24                mov    DWORD PTR [esp],eax				;setup for fgets
  804897c:       e8 2b fe ff ff          call   80487ac <fgets@plt>				;call fgets
- 3.) WEIRD TEST
+3.)WEIRD TEST
  8048981:       85 c0                   test   eax,eax							;Test = AND with flags being set, namely zf
  8048983:       75 02                   jne    8048987 <main+0x53>				;If they are not equal, jump to 8048987
  8048985:       c9                      leave  									;epilog
  8048986:       c3                      ret    									;epilog
-4.) STRNCMP
+4.)STRNCMP
  8048987:       c7 44 24 08 05 00 00    mov    DWORD PTR [esp+0x8],0x5			;setup for strncmp
  804898e:       00 																
  804898f:       c7 44 24 04 8d ad 04    mov    DWORD PTR [esp+0x4],0x804ad8d	;setup for strncmp
@@ -35,13 +35,13 @@
  8048997:       8d 44 24 10             lea    eax,[esp+0x10]					;setup for strncmp
  804899b:       89 04 24                mov    DWORD PTR [esp],eax				;setup for strncmp
  804899e:       e8 a9 fe ff ff          call   804884c <strncmp@plt>			;call strncmp
-5.) ANOTHER WEIRD JUMP
+5.)ANOTHER WEIRD JUMP
  80489a3:       85 c0                   test   eax,eax							;test eax against itself
  80489a5:       75 5a                   jne    8048a01 <main+0xcd>				;jump not equal to 8048a01
-6.) MALLOC
+6.)MALLOC
  80489a7:       c7 04 24 04 00 00 00    mov    DWORD PTR [esp],0x4				;if we fell through jump, set aside four bytes on heap
  80489ae:       e8 b7 07 00 00          call   804916a <malloc>					;call to malloc
-7.) MEMSET
+7.)MEMSET
  80489b3:       a3 f4 b5 04 08          mov    ds:0x804b5f4,eax					;store heap addr at 804b5f4
  80489b8:       a1 f4 b5 04 08          mov    eax,ds:0x804b5f4					;move that value back into eax
  80489bd:       c7 44 24 08 04 00 00    mov    DWORD PTR [esp+0x8],0x4			;setup for memset
@@ -50,12 +50,12 @@
  80489cc:       00 
  80489cd:       89 04 24                mov    DWORD PTR [esp],eax				;passing heap addr to memset
  80489d0:       e8 e7 fd ff ff          call   80487bc <memset@plt>				;call memset
-8.) STRLEN
+8.)STRLEN
  80489d5:       8d 44 24 10             lea    eax,[esp+0x10]					;take 3rd argument off of stack and put in eax
  80489d9:       83 c0 05                add    eax,0x5							;add 5 to eax
  80489dc:       89 04 24                mov    DWORD PTR [esp],eax				;place eax at top of stack
  80489df:       e8 18 fe ff ff          call   80487fc <strlen@plt>				;call strlen
-9.) IF STRING LEN <= 30, STRCPY
+9.)IF STRING LEN <= 30, STRCPY
  80489e4:       83 f8 1e                cmp    eax,0x1e							;cmp eax to 30byte
  80489e7:       77 18                   ja     8048a01 <main+0xcd>				;jump if above(unsigned) to 8048a01
  80489e9:       8d 44 24 10             lea    eax,[esp+0x10]					;load address of 3rd arg on stack into eax
@@ -104,19 +104,29 @@
  8048a72:       8d 44 24 10             lea    eax,[esp+0x10]					;load 3rd arg from stack into eax
  8048a76:       89 04 24                mov    DWORD PTR [esp],eax				;setup 1st arg on stack
  8048a79:       e8 ce fd ff ff          call   804884c <strncmp@plt>			;call strncmp (compare dup string to orginal?)
-18.)
+18.)ANOTHER JUMP
  8048a7e:       85 c0                   test   eax,eax
- 8048a80:       0f 85 bc fe ff ff       jne    8048942 <main+0xe>
+ 8048a80:       0f 85 bc fe ff ff       jne    8048942 <main+0xe>				;jump back to top
 19.)
- 8048a86:       a1 f4 b5 04 08          mov    eax,ds:0x804b5f4
- 8048a8b:       8b 40 20                mov    eax,DWORD PTR [eax+0x20]
- 8048a8e:       85 c0                   test   eax,eax
- 8048a90:       74 11                   je     8048aa3 <main+0x16f>
-20.)
+ 8048a86:       a1 f4 b5 04 08          mov    eax,ds:0x804b5f4					;load value to be checked
+ 8048a8b:       8b 40 20                mov    eax,DWORD PTR [eax+0x20]			;get a value from the stack
+ 8048a8e:       85 c0                   test   eax,eax							;test that value
+ 8048a90:       74 11                   je     8048aa3 <main+0x16f>				;jump down to print out message
+20.)???
  8048a92:       c7 04 24 a7 ad 04 08    mov    DWORD PTR [esp],0x804ada7
- 8048a99:       e8 9e fd ff ff          call   804883c <puts@plt>
- 8048a9e:       e9 a0 fe ff ff          jmp    8048943 <main+0xf>
-21.)
+ 8048a99:       e8 9e fd ff ff          call   804883c <puts@plt>				;print a message
+ 8048a9e:       e9 a0 fe ff ff          jmp    8048943 <main+0xf>				;back to top
+21.)???
  8048aa3:       c7 04 24 c3 ad 04 08    mov    DWORD PTR [esp],0x804adc3
- 8048aaa:       e8 8d fd ff ff          call   804883c <puts@plt>
- 8048aaf:       e9 8f fe ff ff          jmp    8048943 <main+0xf>
+ 8048aaa:       e8 8d fd ff ff          call   804883c <puts@plt>				;print a message
+ 8048aaf:       e9 8f fe ff ff          jmp    8048943 <main+0xf>				;back to top
+ 
+ ***NOTES***
+ Looks like a while loop with a lot of if (no elses) statements. Examining the hard coded addr values shows lots of strings, such as "auth", "service",
+ and "login". These can all be used as commands. Some of the other hard coded values are just output strings or variable addr.
+ 
+ Looks like this level uses something called "use-after-free". When you use "auth joe" to login the first time, that value is placed on the heap.
+ If you then use "reset" to free that memory, you'll notice that the addr of auth doesn't change. If you then use "service" that memory is placed over-
+ top of where the "auth" used to be. This causes auth and service to have the same value. If you do "auth jim" and then call "service" a few more times, 
+ you'll notice that the value of the service variable eventually (I'm guessing) overflows to a higher value. If you then call "login" it will say that you are already
+ logged in, even though you aren't. This happened because not all of the variable values were reset after the free() call.
