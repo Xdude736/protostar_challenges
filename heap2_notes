@@ -34,7 +34,7 @@
  8048996:       08 													
  8048997:       8d 44 24 10             lea    eax,[esp+0x10]					;setup for strncmp
  804899b:       89 04 24                mov    DWORD PTR [esp],eax				;setup for strncmp
- 804899e:       e8 a9 fe ff ff          call   804884c <strncmp@plt>			;call strncmp
+ 804899e:       e8 a9 fe ff ff          call   804884c <strncmp@plt>			;call strncmp 
 5.) ANOTHER WEIRD JUMP
  80489a3:       85 c0                   test   eax,eax							;test eax against itself
  80489a5:       75 5a                   jne    8048a01 <main+0xcd>				;jump not equal to 8048a01
