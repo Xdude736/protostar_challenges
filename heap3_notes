@@ -1,0 +1,60 @@
+08048889 <main>:
+1.)PROLOG
+ 8048889:       55                      push   %ebp
+ 804888a:       89 e5                   mov    %esp,%ebp
+ 804888c:       83 e4 f0                and    $0xfffffff0,%esp
+ 804888f:       83 ec 20                sub    $0x20,%esp
+2.) 1ST MALLOC
+ 8048892:       c7 04 24 20 00 00 00    movl   $0x20,(%esp)
+ 8048899:       e8 54 07 00 00          call   8048ff2 <malloc>
+ 804889e:       89 44 24 14             mov    %eax,0x14(%esp)
+3.) 2ND MALLOC
+ 80488a2:       c7 04 24 20 00 00 00    movl   $0x20,(%esp)
+ 80488a9:       e8 44 07 00 00          call   8048ff2 <malloc>
+ 80488ae:       89 44 24 18             mov    %eax,0x18(%esp)
+4.) 3RD MALLOC
+ 80488b2:       c7 04 24 20 00 00 00    movl   $0x20,(%esp)
+ 80488b9:       e8 34 07 00 00          call   8048ff2 <malloc>
+ 80488be:       89 44 24 1c             mov    %eax,0x1c(%esp)
+5.) STRCPYS OF DOOOOOOOOOOOOMMMMMMMMMMMMMMMMMM
+ 80488c2:       8b 45 0c                mov    0xc(%ebp),%eax
+ 80488c5:       83 c0 04                add    $0x4,%eax
+ 80488c8:       8b 00                   mov    (%eax),%eax
+ 80488ca:       89 44 24 04             mov    %eax,0x4(%esp)
+ 80488ce:       8b 44 24 14             mov    0x14(%esp),%eax
+ 80488d2:       89 04 24                mov    %eax,(%esp)
+ 80488d5:       e8 76 fe ff ff          call   8048750 <strcpy@plt>
+ 80488da:       8b 45 0c                mov    0xc(%ebp),%eax
+ 80488dd:       83 c0 08                add    $0x8,%eax
+ 80488e0:       8b 00                   mov    (%eax),%eax
+ 80488e2:       89 44 24 04             mov    %eax,0x4(%esp)
+ 80488e6:       8b 44 24 18             mov    0x18(%esp),%eax
+ 80488ea:       89 04 24                mov    %eax,(%esp)
+ 80488ed:       e8 5e fe ff ff          call   8048750 <strcpy@plt>
+ 80488f2:       8b 45 0c                mov    0xc(%ebp),%eax
+ 80488f5:       83 c0 0c                add    $0xc,%eax
+ 80488f8:       8b 00                   mov    (%eax),%eax
+ 80488fa:       89 44 24 04             mov    %eax,0x4(%esp)
+ 80488fe:       8b 44 24 1c             mov    0x1c(%esp),%eax
+ 8048902:       89 04 24                mov    %eax,(%esp)
+ 8048905:       e8 46 fe ff ff          call   8048750 <strcpy@plt>
+ 804890a:       8b 44 24 1c             mov    0x1c(%esp),%eax
+6.) THIS IS WHERE THE MAGIC HAPPENS
+ 804890e:       89 04 24                mov    %eax,(%esp)
+ 8048911:       e8 0e 0f 00 00          call   8049824 <free>
+ 8048916:       8b 44 24 18             mov    0x18(%esp),%eax
+ 804891a:       89 04 24                mov    %eax,(%esp)
+ 804891d:       e8 02 0f 00 00          call   8049824 <free>
+ 8048922:       8b 44 24 14             mov    0x14(%esp),%eax
+ 8048926:       89 04 24                mov    %eax,(%esp)
+ 8048929:       e8 f6 0e 00 00          call   8049824 <free>
+ 804892e:       c7 04 24 27 ac 04 08    movl   $0x804ac27,(%esp)
+7.) YOU HAVE REACHED THE VOICEMAIL OF FAILURE, PLEASE LEAVE A MESSAGE
+ 8048935:       e8 56 fe ff ff          call   8048790 <puts@plt>
+8.) EPILOG
+ 804893a:       c9                      leave
+ 804893b:       c3                      ret
+ 
+NOTES:
+    * Pretty straight forward. 3 mallocs followed by 3 strcpy, and then 3 frees. My first guess is that we are going to exploit the strcpy to overwrite
+	the headers of the heap blocks and then use the overwritten headers to jump where we want during the frees.
